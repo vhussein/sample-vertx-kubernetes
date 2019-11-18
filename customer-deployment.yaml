@@ -1,0 +1,31 @@
+kind: "DeploymentConfig"
+apiVersion: "v1"
+metadata:
+  name: "customer-service"
+spec:
+  template:
+    metadata:
+      labels:
+        name: "customer-service"
+    spec:
+      containers: # (1)
+        - name: "customer-vertx-service"
+          image: "piomin/customer-vertx-service:latest"
+          ports:
+            - containerPort: 8095
+              protocol: "TCP"
+  replicas: 1 # (2)
+  triggers: # (3)
+    - type: "ConfigChange"
+    - type: "ImageChange"
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - "customer-vertx-service"
+        from:
+          kind: "ImageStreamTag"
+          name: "customer-vertx-service:latest"
+  strategy: # (4)
+    type: "Rolling"
+  paused: false
+  revisionHistoryLimit: 2
